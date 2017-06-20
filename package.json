@@ -1,0 +1,27 @@
+{
+  "name": "bigdata-visualization",
+  "version": "1.0.0",
+  "description": "Visualization for Big Data project 3.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saphraxaeris/bigdata-project3.git"
+  },
+  "author": "Stephan Elias Remy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/saphraxaeris/bigdata-project3/issues"
+  },
+  "homepage": "https://github.com/saphraxaeris/bigdata-project3#readme",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "connect-ensure-login": "^0.1.1",
+    "cookie-parser": "^1.4.3",
+    "cookie-session": "^2.0.0-beta.1",
+    "express": "^4.15.2",
+    "bson": "1.0.4"
+  }
+}

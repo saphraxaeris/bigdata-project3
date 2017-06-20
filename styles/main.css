@@ -1,0 +1,244 @@
+.container {
+	padding-top: 85px;
+	width: 100%;
+    padding-left: 275px;
+    padding-right: 25px;
+	padding-bottom: 25px;
+}
+
+.grey.lighten-3 {
+    background-color: #f9ede7 !important;
+}
+
+.brand-logo {
+	margin-left: 15px;
+}
+
+a.brand-logo > img {
+    height:auto;
+    max-height:50px;
+    margin-top:7px;
+}
+
+.top-nav {
+    position:fixed;
+    z-index:3;
+}
+
+#sidenav-overlay {
+	z-index: 1 !important;
+}
+
+.side-nav {
+	width: 250px;
+}
+
+.non-mobile-side-nav {
+    width: 250px;
+    transform: translate(0, 64px)!important;
+}
+
+.side-nav li > a.btn {
+	color: #000;
+    background-color: #fff;
+    font-size: .9rem;
+    margin: 15px 0;
+    box-shadow: none;
+}
+
+.profile-pic {
+	height:100%;
+	width:auto;
+	padding: 5px;
+	max-height: 65px;
+}
+
+.card-header {
+	font-size: .9rem;
+	max-height: 50px;
+	border-bottom: 1px solid #eee;
+}
+
+.thumbnail {
+	height: 50px;
+    width: 50px;
+}
+
+.profile-thumbnail-large {
+	max-height: 100px;
+}
+
+.bold {
+	font-weight: 500 !important;
+}
+
+.red-bg {
+	background-color: rgba(225,4,20, .8)
+}
+
+.green-bg {
+	background-color: rgba(95, 186, 125, .8)
+}
+
+.rpg:after {
+	font-weight: bold;
+	color: #963000;
+	content: "RPG";
+}
+
+.underline{
+	text-decoration: underline;
+}
+
+.news {
+	border-top: 1px solid #333;
+	border-bottom: 1px solid #333;
+	margin: 20px 0;
+}
+
+.news h1 {
+	font-size: 2rem;
+	margin: 10px 0;
+}
+
+.news img {
+	margin-bottom: 10px;
+	width: 100%;
+}
+
+.side-nav li.active > a.btn {
+	background-color: #2bbbad !important;
+	color: white;
+}
+.side-nav li.active > a.btn i {
+	color: white;
+}
+
+.side-nav li > a.btn:hover {
+	background-color: #2bbbad !important;
+	color: white;
+}
+.side-nav li > a.btn:hover i {
+	color: white;
+}
+
+.sprite {
+	width: 50%;
+	margin-left: 20%;
+}
+
+table.highlight > tbody > tr:hover {
+    background-color: #2bbbad;
+	color: white;
+}
+
+.card .card-content .card-sub-title {
+    display: block;
+    line-height: 32px;
+    margin-bottom: 8px;
+}
+
+.card .card-sub-title {
+    font-size: 18px;
+    font-weight: 300;
+}
+
+.class-professor::before {
+	content: "Professor: ";
+	font-weight: bold;
+}
+
+.class-office::before {
+	content: "Office: ";
+	font-weight: bold;
+}
+
+.class-office-hours::before {
+	content: "Office Hours: ";
+	font-weight: bold;
+}
+
+.btn-flat:focus, .btn-flat:hover {
+    background-color: rgba(0,0,0, 0) !important;
+    box-shadow: none;
+}
+
+.coin-sprite {
+	width:20px;
+	margin-left: 5px;
+	margin-right: 3px; 
+}
+
+.margin-top-25 {
+	margin-top: 25px;
+}
+
+.timer {
+	float: right;
+    display: block;
+    position: fixed;
+    margin-top: 80px;
+    right: 64px;
+    background: teal;
+    color: white;
+    padding: 10px 25px;
+    font-size: 1.25rem;
+    border-radius: 20px;
+}
+
+.overlay {
+    /* Height & width depends on how you want to reveal the overlay (see JS below) */
+    height: 100%;
+    width: 100%;
+    position: fixed; /* Stay in place */
+    z-index: 9999; /* Sit on top */
+    left: 0;
+    top: 0;
+    background-color: rgb(0,0,0); /* Black fallback color */
+    background-color: rgba(0,0,0, 0.9); /* Black w/opacity */
+    overflow-x: hidden; /* Disable horizontal scroll */
+}
+
+/* Position the content inside the overlay */
+.overlay-content {
+    position: relative;
+    width: 100%; /* 100% width */
+    text-align: center; /* Centered text/links */
+    margin-top: 20%;
+	margin-left: 100px;
+}
+
+.loader {
+    border: 16px solid #ddd;
+    border-top: 16px solid #2bbbad;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    display: table;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media only screen and (max-width: 993px) {
+    .container {
+		padding-top: 85px;
+		width: 100%;
+		padding-left: 25px;
+		padding-right: 25px;
+		padding-bottom: 25px;
+	}
+
+	.overlay-content {
+		margin-left: 0px;
+	}
+}
