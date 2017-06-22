@@ -13,7 +13,8 @@ app.use(express.static('scripts'));
 app.use(express.static('data'));
 
 app.get('/',function(req, res){
-  res.sendFile('index.html',{root:"./views"});
+  res.send(data);
+  //res.sendFile('index.html',{root:"./views"});
 });
 
 app.post('/SetFlag', function(req, res){
@@ -27,7 +28,7 @@ app.post('/SetFlag', function(req, res){
     //Save data
 
     //Clear data
-    data = [];
+    //data = [];
     res.send(true);
   }
   else {

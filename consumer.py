@@ -32,7 +32,7 @@ def VerifyNotUnicode(word):
 
 def VerifyTrumpWord(tweet):
     for word in ['TRUMP', 'MAGA', 'DICTATOR', 'IMPEACH', 'SWAMP', 'DRAIN', 'CHANGE']:
-        if word in tweet['text'].upper()
+        if word in tweet['text'].upper():
             return tweet
 
 def sanitize(tweet):
