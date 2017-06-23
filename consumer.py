@@ -10,6 +10,8 @@ import json
 import urllib
 from textblob import TextBlob
 import re
+from pyspark.sql import SQLContext
+from pyspark.sql.types import *
 
 try:
     import json
@@ -20,7 +22,10 @@ def PrepareServerForInput(trash):
     requests.post("http:/localhost:8080/SetFlag", data={"val":True})
 
 def SendInput(jsonData):   
-    requests.post("http:/localhost:8080/SendData", data="{'text':'%s','sentiment':%s}" % (jsonData[0], jsonData[1]), headers={'content-type': 'application/json'})
+    requests.post("http:/localhost:8080/SendData", data="{'sentiment':'%s','count':%s}" % (jsonData[0], jsonData[1]), headers={'content-type': 'application/json'})
+
+def TellServerDone(trash):
+    requests.post("http:/localhost:8080/SetFlag", data={"val":false})
 
 def VerifyNotDelete(tweet):
     if 'delete' not in tweet:
@@ -31,15 +36,17 @@ def VerifyNotUnicode(word):
         return word
 
 def VerifyTrumpWord(tweet):
-    for word in ['TRUMP', 'MAGA', 'DICTATOR', 'IMPEACH', 'SWAMP', 'DRAIN', 'CHANGE']:
-        if word in tweet['text'].upper():
-            return tweet
+    if tweet['text'] is not None:
+        for word in ['TRUMP', 'MAGA', 'DICTATOR', 'IMPEACH', 'SWAMP', 'DRAIN', 'CHANGE']:
+            if word in tweet['text'].upper():
+                return tweet
 
-def sanitize(tweet):
-    return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+def sanitize(tweetText):
+    text = re.sub(r'[^\x00-\x7F]+',' ', tweetText)
+    return text
 
 def get_sentiment(tweet):
-    anaylis = TextBlob(sanitize(tweet))
+    analysis = TextBlob(tweet)
     if analysis.sentiment.polarity > 0:
         return 'positive'
     elif analysis.sentiment.polarity == 0:
@@ -48,32 +55,31 @@ def get_sentiment(tweet):
         return 'negative'
 
 def sentiment(tweet):
-    analysed_tweet = {}
-    analysed_tweet['text'] = tweet
-    analysed_tweet['sentiment'] = get_sentiment(tweet)
-    return analysed_tweet
+    return get_sentiment(tweet)
 
 if __name__ == "__main__":
     sc = SparkContext(appName="Sentiment Anaylis")
 
-    # Create a local StreamingContext with two working thread and batch interval of 10 minutes
-    ssc = StreamingContext(sc, 1)
+    ssc = StreamingContext(spark, 1)
 
     sc.setCheckpointDir("/tmp/checkpoints/")
 
     consumer = KafkaUtils.createStream(ssc,"localhost:2181","twitter-streaming",{'tweets':1})
 
     data = consumer.map(lambda tweets: json.loads(tweets[1])) 
+    
+    filteredTweets = data.rdd.filter(VerifyNotDelete).filter(VerifyNotUnicode).filter(VerifyTrumpWord).map(lambda tweet: sentiment(sanitize(("%s" % tweet['text']).encode("utf-8"))))
+    fields = [StructField(field_name, StringType(), True) for field_name in "sentiment"]
+    schema = StructType(fields)
 
-    analysedTweets = data.filter(VerifyNotDelete).filter(VerifyNotUnicode).flatMap(lambda tweet: sentiment(tweet['text']))
-
-    # Trump Words
-    trumpWordTweets = analysedTweets.filter(VerifyTrumpWord).countByValueAndWindow(2,1).transform(lambda rdd: rdd.sortBy(lambda row: row[1]['sentiment'],ascending=False))
-    hack = trumpWordTweets.countByValueAndWindow(2,1).transform(lambda rdd:sc.parallelize(rdd.take(0)))
+    sentimentCount = filteredTweets.countByValueAndWindow(86400,3600)
+    hack = sentimentCount.countByValueAndWindow(86400, 3600).transform(lambda rdd: spark.parallelize(rdd.take(0)))
     hack.foreachRDD(PrepareServerForInput)
     hack.pprint()
-    trumpWordsCounted.foreachRDD(lambda row: row.foreach(SendInput))
-    trumpWordsCounted.pprint()
+    sentimentCount.foreachRDD(lambda row: row.foreach(SendInput))
+    sentimentCount.pprint()
+    hack.foreachRDD(TellServerDone)
+    hack.pprint()
     
     ssc.start()             # Start the computation
     ssc.awaitTermination()

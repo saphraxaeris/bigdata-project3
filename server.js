@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var fs = require('fs');
 
 var flag = false;
 var data = [];
@@ -13,8 +14,8 @@ app.use(express.static('scripts'));
 app.use(express.static('data'));
 
 app.get('/',function(req, res){
-  res.send(data);
-  //res.sendFile('index.html',{root:"./views"});
+  //res.send(data);
+  res.sendFile('index.html',{root:"./views"});
 });
 
 app.post('/SetFlag', function(req, res){
@@ -25,14 +26,19 @@ app.post('/SetFlag', function(req, res){
   }
   else if(flag === true && flagValue === false) {
     flag = false;
-    //Save data
-
+    //Save data to file
+    var textToWrite = "var data = " + JSON.stringify(data) + ";";
+    fs.writeFile("data/data.js", textToWrite, function(err) {
+      if(err) {
+          return console.log(err);
+      }
+    });
     //Clear data
-    //data = [];
+    data = [];
     res.send(true);
   }
   else {
-    res.send(false);
+    res.send(true);
   }
 });
 
@@ -44,7 +50,7 @@ app.post('/SendData', function(req, res){
       res.send(true);
     }
   }
-  res.send(false);
+  res.send(true);
 });
 
 app.listen(8080);

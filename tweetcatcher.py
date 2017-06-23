@@ -41,7 +41,7 @@ def read_tweets(access_token, access_secret, consumer_key, consumer_secret):
         # Twitter Python Tool wraps the data returned by Twitter
         # as a TwitterDictResponse object.
         try:
-            tweetFile=open("tweets4.txt", "a+")
+            tweetFile=open("tweets.json", "a+")
             tweetFile.write("%s\n" % json.dumps(tweet, indent=4))
             tweetFile.close()
 
