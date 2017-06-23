@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>classRPG</title>
+  <title>Big Data</title>
 
   <!-- META/CSS Start -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,30 +17,102 @@
 
 <header>
 		<nav class="top-nav teal z-depth-3">
-		<a href='#' class="brand-logo">
-				<span>Big Data Projecct 3 Visualization</span>
+		<a href='' class="brand-logo">
+				<span>Big Data Project 3 Visualization</span>
 				</a>
         </nav>
 	</header>
 
-<div class="overlay" style="display: none;">
+<div class="overlay">
     <div class="overlay-content">
         <div class="loader"></div>
     </div>
 </div>
 <main class="container">
     <div class="row">
-
+        <div class="col s12">
+            <h4>Tweet Sentiment Percentage</h1>
+            <p>Positive: 😄, Negative: 😡, Neutral: 😐</p>
+        </div>
+        <div id="pie" class="col s12 m8 l6 offset-m2 offset-l3"></div>
 	</div>
 </main>
 
 <!-- Scripts Start -->
 <script src="../jquery.min.js"></script>
+<script src="../data.js"></script>
 <script type="text/javascript" src="../materialize/js/materialize.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?2.4.5"></script>
 <script>
   $(function() {
+    var parsedData = [];
+    var total = 0;
+    data.forEach(function(e){
+        total += parseInt(e.count);
+    });
+    
+    data.forEach(function(e){
+        var obj = {};
+        if(e.sentiment === "negative") {
+            obj.sentiment = "😡";
+            obj.color = "#cc422c";
+        }
+        else if(e.sentiment === "positive") {
+            obj.sentiment = "😄";
+            obj.color = "#2cca3a";
+        }
+        else {
+            obj.sentiment = "😐";
+            obj.color = "#e8da3a";
+        }
+        obj.count = parseInt(e.count);
+        obj.percent = ((parseInt(e.count)/total)*100).toFixed(2) + "%";
+        parsedData.push(obj)
+    });
 
+    var $pie = $('#pie');
+    var width = $pie.width();
+    var radius = width/2;
+
+     var vis = d3.select("#pie")
+        .append("svg:svg")              //create the SVG element inside the <body>
+        .data([parsedData])                   //associate our data with the document
+            .attr("width", width)           //set the width and height of our visualization (these will be attributes of the <svg> tag
+            .attr("height", width)
+        .append("svg:g")                //make a group to hold our pie chart
+            .attr("transform", "translate(" + radius + "," + radius + ")")    //move the center of the pie chart from 0, 0 to radius, radius
+
+    var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
+        .outerRadius(radius);
+
+    var pie = d3.layout.pie()           //this will create arc data for us given a list of values
+        .value(function(d) { return d.count; });    //we must tell it out to access the value of each element in our data array
+
+    var arcs = vis.selectAll("g.slice")     //this selects all <g> elements with class slice (there aren't any yet)
+        .data(pie)                          //associate the generated pie data (an array of arcs, each having startAngle, endAngle and value properties) 
+        .enter()                            //this will create <g> elements for every "extra" data element that should be associated with a selection. The result is creating a <g> for every object in the data array
+            .append("svg:g")                //create a group to hold each slice (we will have a <path> and a <text> element associated with each slice)
+                .attr("class", "slice");    //allow us to style things in the slices (like text)
+
+        arcs.append("svg:path")
+                .attr("fill", function(d, i) { return parsedData[i].color; } ) //set the color for each slice to be chosen from the color function defined above
+                .attr("d", arc);                                    //this creates the actual SVG path using the associated data (pie) with the arc drawing function
+
+        arcs.append("svg:text")                                     //add a label to each slice
+                .attr("transform", function(d) {                    //set the label's origin to the center of the arc
+                //we have to make sure to set these before calling arc.centroid
+                d.innerRadius = 0;
+                d.outerRadius = radius;
+                return "translate(" + arc.centroid(d) + ")";        //this gives us a pair of coordinates like [50, 50]
+            })
+            .attr("text-anchor", "middle")   
+            .style("fill", "Black")          
+            .style("font-size", "15px")             //center the text on it's origin
+            .text(function(d, i) { return parsedData[i].sentiment + " : " + parsedData[i].percent; });      
+
+
+    $('.overlay').fadeOut();
   });
 </script>
 <!-- Scripts End -->

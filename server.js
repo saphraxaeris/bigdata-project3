@@ -14,7 +14,6 @@ app.use(express.static('scripts'));
 app.use(express.static('data'));
 
 app.get('/',function(req, res){
-  //res.send(data);
   res.sendFile('index.html',{root:"./views"});
 });
 
@@ -28,7 +27,7 @@ app.post('/SetFlag', function(req, res){
     flag = false;
     //Save data to file
     var textToWrite = "var data = " + JSON.stringify(data) + ";";
-    fs.writeFile("data/data.js", textToWrite, function(err) {
+    fs.writeFile("./data/data.js", textToWrite, function(err) {
       if(err) {
           return console.log(err);
       }

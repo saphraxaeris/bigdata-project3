@@ -1,0 +1,1 @@
+var data = [{"sentiment":"negative","count":"10"},{"sentiment":"positive","count":"20"},{"sentiment":"neutral","count":"5"}];
