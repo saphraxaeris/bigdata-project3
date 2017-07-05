@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     sc.setCheckpointDir("/tmp/checkpoints/")
 
-    consumer = KafkaUtils.createStream(ssc,"localhost:2181","twitter-streaming",{'tweets':1})
+    consumer = KafkaUtils.createStream(ssc,"localhost:2181","twitter-streaming",{'tweets2':1})
 
     data = consumer.map(lambda tweets: json.loads(tweets[1])) 
     
@@ -72,8 +72,8 @@ if __name__ == "__main__":
     fields = [StructField(field_name, StringType(), True) for field_name in "sentiment"]
     schema = StructType(fields)
 
-    sentimentCount = filteredTweets.countByValueAndWindow(86400,3600)
-    hack = sentimentCount.countByValueAndWindow(86400, 3600).transform(lambda rdd: spark.parallelize(rdd.take(0)))
+    sentimentCount = filteredTweets.countByValueAndWindow(3600,300)
+    hack = sentimentCount.countByValueAndWindow(3600,300).transform(lambda rdd: spark.parallelize(rdd.take(0)))
     hack.foreachRDD(PrepareServerForInput)
     hack.pprint()
     sentimentCount.foreachRDD(lambda row: row.foreach(SendInput))
