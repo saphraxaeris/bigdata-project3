@@ -61,13 +61,7 @@ def get_sentiment(tweet):
         return 'negative'
 
 def sentiment(tweet):
-    #print("Starting Process on: %s" % tweet)
-    #analysed_tweet = {}
-    #analysed_tweet['text'] = tweet
-    #analysed_tweet['sentiment'] = get_sentiment(tweet)
-    #print("Text: %s" % analysed_tweet['text'])
-    #print("Sentiment: %s\n" % analysed_tweet['sentiment'])
-    #return analysed_tweet
+
     return get_sentiment(tweet)
 
 if __name__ == "__main__":
@@ -79,27 +73,22 @@ if __name__ == "__main__":
     #     print("Sentiment: %s" % analysedTweet['sentiment'])
     #     print("\n")
 
-    # spark = SparkSession \
-    # .builder \
-    # .appName("Sentiment Anaylis") \
-    # .getOrCreate()
-    sc = SparkContext(appName="Sentiment Anaylis")
+    spark = SparkSession \
+    .builder \
+    .appName("Sentiment Anaylis") \
+    .getOrCreate()
+    #sc = SparkContext(appName="Sentiment Anaylis")
 
-    # Create a local StreamingContext with two working thread and batch interval of 10 minutes
-    ssc = StreamingContext(spark, 1)
-
-    sc.setCheckpointDir("/tmp/checkpoints/")
-
-    consumer = KafkaUtils.createStream(ssc,"localhost:2181","twitter-streaming",{'tweets':1})
-
-    data = consumer.map(lambda tweets: json.loads(tweets[1])) 
-    #data = spark.read.json("tweets.json")
+    #data = consumer.map(lambda tweets: json.loads(tweets[1])) 
+    data = spark.read.json("tweets.json")
     filteredTweets = data.rdd.filter(VerifyNotDelete).filter(VerifyNotUnicode).filter(VerifyTrumpWord).map(lambda tweet: sentiment(sanitize(("%s" % tweet['text']).encode("utf-8"))))
     fields = [StructField(field_name, StringType(), True) for field_name in "sentiment"]
     schema = StructType(fields)
-    #df = spark.createDataFrame(filteredTweets, schema)
-    #df = spark.createDataFrame(filteredTweets, new StructType(new StructField("sentiment", StringType, nullable=false)))
-    #df.groupBy('sentiment').count().show()
+    df = spark.createDataFrame(filteredTweets, schema)
+    df = spark.createDataFrame(filteredTweets, new StructType(new StructField("sentiment", StringType, nullable=false)))
+    df.groupBy('sentiment').count().show()
+
+
     sentimentCount = filteredTweets.countByValueAndWindow(86400,3600)
     hack = sentimentCount.countByValueAndWindow(86400, 3600).transform(lambda rdd: spark.parallelize(rdd.take(0)))
     hack.foreachRDD(PrepareServerForInput)
@@ -109,13 +98,3 @@ if __name__ == "__main__":
     hack.foreachRDD(TellServerDone)
     hack.pprint()
 
-    # Trump Words
-    # trumpWordTweets = analysedTweets.filter(VerifyTrumpWord).countByValueAndWindow(2,1).transform(lambda rdd: rdd.sortBy(lambda row: row[1]['sentiment'],ascending=False))
-    # hack = trumpWordTweets.countByValueAndWindow(2,1).transform(lambda rdd:sc.parallelize(rdd.take(0)))
-    # hack.foreachRDD(PrepareServerForInput)
-    # hack.pprint()
-    # trumpWordsCounted.foreachRDD(lambda row: row.foreach(SendInput))
-    # trumpWordsCounted.pprint()
-    
-    ssc.start()             # Start the computation
-    ssc.awaitTermination()
